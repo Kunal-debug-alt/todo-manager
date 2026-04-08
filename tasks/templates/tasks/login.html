@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        indigo: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                            950: '#1e1b4b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 flex items-center justify-center h-screen">
+    <div class="w-full max-w-md">
+        <div class="bg-white dark:bg-slate-800 shadow-md rounded-lg p-8">
+            <h2 class="text-2xl font-bold text-center text-slate-800 dark:text-slate-200 mb-6">Login</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="id_username" class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2">Username</label>
+                    <input type="text" name="username" id="id_username" class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 dark:text-slate-300 leading-tight focus:outline-none focus:shadow-outline bg-slate-200 dark:bg-slate-700">
+                </div>
+                <div class="mb-6">
+                    <label for="id_password" class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2">Password</label>
+                    <input type="password" name="password" id="id_password" class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 dark:text-slate-300 mb-3 leading-tight focus:outline-none focus:shadow-outline bg-slate-200 dark:bg-slate-700">
+                </div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Sign In
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
