@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Sign Up</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -45,23 +45,16 @@
 <body class="bg-slate-100 dark:bg-slate-900 flex items-center justify-center h-screen">
     <div class="w-full max-w-md">
         <div class="bg-white dark:bg-slate-800 shadow-md rounded-lg p-8">
-            <h2 class="text-2xl font-bold text-center text-slate-800 dark:text-slate-200 mb-6">Login</h2>
+            <h2 class="text-2xl font-bold text-center text-slate-800 dark:text-slate-200 mb-6">Sign Up</h2>
             <form method="post">
                 {% csrf_token %}
-                <div class="mb-4">
-                    <label for="id_username" class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2">Username</label>
-                    <input type="text" name="username" id="id_username" class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 dark:text-slate-300 leading-tight focus:outline-none focus:shadow-outline bg-slate-200 dark:bg-slate-700">
-                </div>
-                <div class="mb-6">
-                    <label for="id_password" class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2">Password</label>
-                    <input type="password" name="password" id="id_password" class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 dark:text-slate-300 mb-3 leading-tight focus:outline-none focus:shadow-outline bg-slate-200 dark:bg-slate-700">
-                </div>
-                <div class="flex items-center justify-between">
+                {{ form.as_p }}
+                <div class="flex items-center justify-between mt-6">
                     <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                        Sign In
+                        Sign Up
                     </button>
-                    <a href="{% url 'tasks:register' %}" class="inline-block align-baseline font-bold text-sm text-indigo-600 hover:text-indigo-800">
-                        Don't have an account?
+                    <a href="{% url 'login' %}" class="inline-block align-baseline font-bold text-sm text-indigo-600 hover:text-indigo-800">
+                        Already have an account?
                     </a>
                 </div>
             </form>
