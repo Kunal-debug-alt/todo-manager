@@ -65,6 +65,22 @@ class RealtimeConsumer(AsyncJsonWebsocketConsumer):
                         'text': text,
                     }
                 )
+        elif msg_type == 'clear_chat' and self.project_id:
+            # Delete all chat messages for this project
+            await sync_to_async(lambda: ChatMessage.objects.filter(project_id=self.project_id).delete())()
+            
+            # Broadcast the clear action to the group
+            await self.channel_layer.group_send(
+                self.project_group,
+                {
+                    'type': 'chat_clear_broadcast',
+                }
+            )
+
+    async def chat_clear_broadcast(self, event):
+        await self.send_json({
+            'type': 'clear_chat',
+        })
 
     async def chat_broadcast(self, event):
         await self.send_json({

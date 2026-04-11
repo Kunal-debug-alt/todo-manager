@@ -54,6 +54,13 @@
                     <p id="no-chat-msg" class="text-slate-500 dark:text-slate-400 text-xs italic">Say hi to your team!</p>
                 {% endfor %}
             </div>
+            
+            {% if project_can_edit %}
+                <div class="flex justify-end mb-2">
+                    <button type="button" id="clear-chat-btn" class="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-semibold transition-colors">Clear Chat</button>
+                </div>
+            {% endif %}
+            
             <form id="chat-form" class="flex mt-auto gap-2">
                 <input type="text" id="chat-input" class="flex-1 text-sm border border-slate-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-700 text-black dark:text-white" placeholder="Type a message..." required>
                 <button type="submit" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700">Send</button>
@@ -218,11 +225,34 @@
                 }
             });
         }
+        
+        // Clear Chat Action
+        const clearBtn = document.getElementById('clear-chat-btn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (currentProjectId && window.socket) {
+                    if (confirm('Are you sure you want to clear the entire project chat? This cannot be undone.')) {
+                        window.socket.send(JSON.stringify({
+                            'type': 'clear_chat'
+                        }));
+                    }
+                }
+            });
+        }
 
         window.addEventListener('realtime', (e) => {
             const data = e.detail || {};
             
-            // Handle chat broadcasts
+            // Handle chat and clear broadcasts
+            if (data.type === 'clear_chat') {
+                const messagesDiv = document.getElementById('chat-messages');
+                if (messagesDiv) {
+                    messagesDiv.innerHTML = '<p id="no-chat-msg" class="text-slate-500 dark:text-slate-400 text-xs italic">Say hi to your team!</p>';
+                }
+                return;
+            }
+            
             if (data.type === 'chat_message') {
                 const messagesDiv = document.getElementById('chat-messages');
                 const noMsg = document.getElementById('no-chat-msg');
