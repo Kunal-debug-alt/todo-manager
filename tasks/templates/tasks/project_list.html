@@ -1,0 +1,24 @@
+{% extends 'tasks/base.html' %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold">Projects</h2>
+    <a href="{% url 'tasks:project_create' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Add Project</a>
+</div>
+
+<div class="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-md">
+    <ul class="space-y-2">
+        {% for project in projects %}
+            <li class="flex justify-between items-center">
+                <a href="{% url 'tasks:tasks_in_project' project.id %}" class="text-lg hover:text-indigo-600">{{ project.name }}</a>
+                <div>
+                    <a href="{% url 'tasks:project_update' project.id %}" class="text-slate-400 hover:text-indigo-500 mr-2">Edit</a>
+                    <a href="{% url 'tasks:project_delete' project.id %}" class="text-slate-400 hover:text-red-500">Delete</a>
+                </div>
+            </li>
+        {% empty %}
+            <li>No projects yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock content %}

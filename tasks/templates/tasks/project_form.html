@@ -1,0 +1,41 @@
+{% extends 'tasks/base.html' %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <div class="bg-white dark:bg-slate-800 p-8 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold mb-6">{% if object %}Update Project{% else %}Create Project{% endif %}</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="space-y-4">
+                <div>
+                    <label for="id_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Name</label>
+                    <div class="mt-1">
+                        {{ form.name }}
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6">
+                <button type="submit" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                    {% if object %}Update{% else %}Create{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    input[type="text"] {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        border: 1px solid #cbd5e1;
+        background-color: #f1f5f9;
+        color: #0f172a;
+    }
+    .dark input[type="text"] {
+        border-color: #475569;
+        background-color: #1e293b;
+        color: #f8fafc;
+    }
+</style>
+{% endblock content %}

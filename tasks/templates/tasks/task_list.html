@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="flex justify-between items-center mb-6">
-    <h2 class="text-3xl font-bold">Your Tasks</h2>
+    <h2 class="text-3xl font-bold">{% if project %}{{ project.name }}{% else %}All Tasks{% endif %}</h2>
     <a href="{% url 'tasks:task_create' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Add Task</a>
 </div>
 
@@ -11,20 +11,21 @@
     <div>
         <h3 class="text-xl font-semibold mb-4">Pending ({{ pending_count }})</h3>
         <div class="space-y-4">
-            {% for task in tasks %}
-                {% if not task.completed %}
+            {% for task in pending_tasks %}
                     <div class="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-md flex items-center justify-between">
-                        <div class="flex items-center">
+                        <div class="flex items-center" style="padding-left: calc({{ task.level }} * 1rem);">
                             <form action="{% url 'tasks:task_update' task.id %}" method="post" class="mr-4">
                                 {% csrf_token %}
                                 <input type="hidden" name="completed" value="on">
                                 <input type="checkbox" onchange="this.form.submit()" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500">
                             </form>
                             <a href="{% url 'tasks:task_update' task.id %}">{{ task.title }}</a>
+                            {% if task.project %}
+                                <span class="ml-2 text-xs bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-2 py-1 rounded-full">{{ task.project.name }}</span>
+                            {% endif %}
                         </div>
                         <a href="{% url 'tasks:task_delete' task.id %}" class="text-slate-400 hover:text-red-500">Delete</a>
                     </div>
-                {% endif %}
             {% empty %}
                 <p>No pending tasks.</p>
             {% endfor %}
@@ -35,20 +36,21 @@
     <div>
         <h3 class="text-xl font-semibold mb-4">Completed ({{ completed_count }})</h3>
         <div class="space-y-4">
-            {% for task in tasks %}
-                {% if task.completed %}
+            {% for task in completed_tasks %}
                     <div class="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-md flex items-center justify-between">
-                        <div class="flex items-center">
+                        <div class="flex items-center" style="padding-left: calc({{ task.level }} * 1rem);">
                             <form action="{% url 'tasks:task_update' task.id %}" method="post" class="mr-4">
                                 {% csrf_token %}
                                 <input type="hidden" name="completed" value="off">
                                 <input type="checkbox" onchange="this.form.submit()" checked class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500">
                             </form>
                             <span class="line-through text-slate-500">{{ task.title }}</span>
+                            {% if task.project %}
+                                <span class="ml-2 text-xs bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-2 py-1 rounded-full">{{ task.project.name }}</span>
+                            {% endif %}
                         </div>
                         <a href="{% url 'tasks:task_delete' task.id %}" class="text-slate-400 hover:text-red-500">Delete</a>
                     </div>
-                {% endif %}
             {% endfor %}
         </div>
     </div>

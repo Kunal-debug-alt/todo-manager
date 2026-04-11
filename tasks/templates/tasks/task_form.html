@@ -8,6 +8,18 @@
             {% csrf_token %}
             <div class="space-y-4">
                 <div>
+                    <label for="id_project" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Project</label>
+                    <div class="mt-1">
+                        {{ form.project }}
+                    </div>
+                </div>
+                <div>
+                    <label for="id_parent" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Parent task (optional)</label>
+                    <div class="mt-1">
+                        {{ form.parent }}
+                    </div>
+                </div>
+                <div>
                     <label for="id_title" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Title</label>
                     <div class="mt-1">
                         {{ form.title }}
@@ -38,7 +50,7 @@
 </div>
 
 <style>
-    input[type="text"], textarea {
+    input[type="text"], textarea, select {
         width: 100%;
         padding: 0.5rem;
         border-radius: 0.375rem;
@@ -46,7 +58,7 @@
         background-color: #f1f5f9;
         color: #0f172a;
     }
-    .dark input[type="text"], .dark textarea {
+    .dark input[type="text"], .dark textarea, .dark select {
         border-color: #475569;
         background-color: #1e293b;
         color: #f8fafc;
