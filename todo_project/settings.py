@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'mptt',
     'tasks',
 ]
@@ -77,6 +78,26 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'todo_project.wsgi.application'
+
+ASGI_APPLICATION = 'todo_project.asgi.application'
+
+REDIS_URL = os.environ.get('REDIS_URL')
+if REDIS_URL:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                'hosts': [REDIS_URL],
+            },
+        }
+    }
+else:
+    # Dev-friendly default that requires no external services.
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        }
+    }
 
 
 # Database

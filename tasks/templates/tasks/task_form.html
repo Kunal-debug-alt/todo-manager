@@ -14,6 +14,15 @@
                     </div>
                 </div>
                 <div>
+                    <label for="id_assignee" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Assign To</label>
+                    <div class="mt-1">
+                        {{ form.assignee }}
+                        {% if form.assignee.errors %}
+                            <p class="text-sm text-red-500 mt-1">{{ form.assignee.errors|striptags }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
                     <label for="id_parent" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Parent task (optional)</label>
                     <div class="mt-1">
                         {{ form.parent }}
@@ -29,6 +38,24 @@
                     <label for="id_description" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
                     <div class="mt-1">
                         {{ form.description }}
+                    </div>
+                </div>
+                <div>
+                    <label for="id_due_date" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Due date</label>
+                    <div class="mt-1">
+                        {{ form.due_date }}
+                    </div>
+                </div>
+                <div>
+                    <label for="id_priority" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Priority</label>
+                    <div class="mt-1">
+                        {{ form.priority }}
+                    </div>
+                </div>
+                <div>
+                    <label for="id_tags" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Labels/Tags (comma separated)</label>
+                    <div class="mt-1">
+                        {{ form.tags }}
                     </div>
                 </div>
                 {% if object %}

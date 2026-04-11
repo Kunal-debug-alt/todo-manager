@@ -69,5 +69,49 @@
             {% endblock content %}
         </main>
     </div>
+
+    <div id="toast-root" class="fixed bottom-6 right-6 space-y-2 z-50"></div>
+
+    <script>
+        (function () {
+            const toastRoot = document.getElementById('toast-root');
+
+            function showToast(message) {
+                if (!toastRoot) return;
+                const el = document.createElement('div');
+                el.className = 'max-w-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md rounded-lg px-4 py-3 text-sm';
+                el.textContent = message;
+                toastRoot.appendChild(el);
+                setTimeout(() => {
+                    el.remove();
+                }, 4500);
+            }
+
+            const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+            const wsUrl = `${scheme}://${window.location.host}/ws/user/`;
+
+            let socket;
+            try {
+                socket = new WebSocket(wsUrl);
+            } catch (e) {
+                return;
+            }
+
+            socket.onmessage = (event) => {
+                let data;
+                try {
+                    data = JSON.parse(event.data);
+                } catch (e) {
+                    return;
+                }
+
+                window.dispatchEvent(new CustomEvent('realtime', { detail: data }));
+
+                if (data && data.type === 'notify' && data.message) {
+                    showToast(data.message);
+                }
+            };
+        })();
+    </script>
 </body>
 </html>

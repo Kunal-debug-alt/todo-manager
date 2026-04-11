@@ -3,17 +3,43 @@
 {% block content %}
 <div class="flex justify-between items-center mb-6">
     <h2 class="text-3xl font-bold">Projects</h2>
-    <a href="{% url 'tasks:project_create' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Add Project</a>
+    <div class="flex items-center gap-2">
+        <a href="{% url 'tasks:project_join' %}" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700">Join Project</a>
+        <a href="{% url 'tasks:project_create' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Add Project</a>
+    </div>
 </div>
 
 <div class="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-md">
     <ul class="space-y-2">
         {% for project in projects %}
             <li class="flex justify-between items-center">
-                <a href="{% url 'tasks:tasks_in_project' project.id %}" class="text-lg hover:text-indigo-600">{{ project.name }}</a>
-                <div>
-                    <a href="{% url 'tasks:project_update' project.id %}" class="text-slate-400 hover:text-indigo-500 mr-2">Edit</a>
-                    <a href="{% url 'tasks:project_delete' project.id %}" class="text-slate-400 hover:text-red-500">Delete</a>
+                <div class="flex-1">
+                    <a href="{% url 'tasks:tasks_in_project' project.id %}" class="text-lg hover:text-indigo-600">{{ project.name }}</a>
+                    <div class="mt-2">
+                        <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                            <span>{{ project.done_tasks|default:0 }}/{{ project.total_tasks|default:0 }} tasks done</span>
+                            {% if project.total_tasks %}
+                                <span>{% widthratio project.done_tasks project.total_tasks 100 %}%</span>
+                            {% else %}
+                                <span>0%</span>
+                            {% endif %}
+                        </div>
+                        <div class="mt-2 h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            {% if project.total_tasks %}
+                                <div class="h-full bg-indigo-600" style="width: {% widthratio project.done_tasks project.total_tasks 100 %}%"></div>
+                            {% else %}
+                                <div class="h-full bg-indigo-600" style="width: 0%"></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ml-4">
+                    {% if project.user_id == user.id %}
+                        <a href="{% url 'tasks:project_invite' project.id %}" class="text-slate-400 hover:text-indigo-500 mr-2">Invite</a>
+                        <a href="{% url 'tasks:project_update' project.id %}" class="text-slate-400 hover:text-indigo-500 mr-2">Edit</a>
+                        <a href="{% url 'tasks:project_delete' project.id %}" class="text-slate-400 hover:text-red-500">Delete</a>
+                    {% endif %}
                 </div>
             </li>
         {% empty %}
@@ -21,4 +47,14 @@
         {% endfor %}
     </ul>
 </div>
+
+<script>
+    (function () {
+        window.addEventListener('realtime', (e) => {
+            const data = e.detail || {};
+            if (data.type !== 'refresh') return;
+            window.location.reload();
+        });
+    })();
+</script>
 {% endblock content %}

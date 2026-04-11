@@ -1,0 +1,33 @@
+{% extends 'tasks/base.html' %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <div class="bg-white dark:bg-slate-800 p-8 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold mb-2">Join a Project</h2>
+        <p class="text-slate-500 dark:text-slate-400 mb-6">Enter a project code to join as a Viewer.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="space-y-4">
+                <div>
+                    <label for="id_code" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Project code</label>
+                    <div class="mt-1">
+                        {{ form.code }}
+                        {% if form.code.errors %}
+                            <p class="text-sm text-red-500 mt-1">{{ form.code.errors|striptags }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <button type="submit" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Join</button>
+            </div>
+        </form>
+
+        <div class="mt-6 text-sm">
+            <a href="{% url 'tasks:project_list' %}" class="text-slate-500 hover:text-indigo-600">Back to projects</a>
+        </div>
+    </div>
+</div>
+{% endblock content %}
