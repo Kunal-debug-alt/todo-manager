@@ -204,15 +204,14 @@
         const chatForm = document.getElementById('chat-form');
         const chatInput = document.getElementById('chat-input');
         
-        if (chatForm && window.socket) {
+        if (chatForm) {
             chatForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const text = chatInput.value.trim();
                 
-                if (text && currentProjectId) {
+                if (text && currentProjectId && window.socket) {
                     window.socket.send(JSON.stringify({
-                        'action': 'chat_message',
-                        'project_id': currentProjectId,
+                        'type': 'chat_message',
                         'text': text
                     }));
                     chatInput.value = '';
@@ -224,7 +223,7 @@
             const data = e.detail || {};
             
             // Handle chat broadcasts
-            if (data.action === 'chat_broadcast' && (!currentProjectId || Number(data.project_id) === currentProjectId)) {
+            if (data.type === 'chat_message') {
                 const messagesDiv = document.getElementById('chat-messages');
                 const noMsg = document.getElementById('no-chat-msg');
                 

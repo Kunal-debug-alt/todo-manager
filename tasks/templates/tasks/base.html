@@ -124,11 +124,19 @@
             }
 
             const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
-            const wsUrl = `${scheme}://${window.location.host}/ws/user/`;
+            let wsUrl = `${scheme}://${window.location.host}/ws/user/`;
+            
+            // Check if we are in a project scope to connect to the project channel
+            const meta = document.getElementById('realtime-meta');
+            const projectId = meta && meta.dataset.projectId ? meta.dataset.projectId : null;
+            if (projectId) {
+                wsUrl = `${scheme}://${window.location.host}/ws/project/${projectId}/`;
+            }
 
             let socket;
             try {
                 socket = new WebSocket(wsUrl);
+                window.socket = socket; // Expose globally for chat inputs
             } catch (e) {
                 return;
             }
