@@ -7,12 +7,15 @@
         <form method="post">
             {% csrf_token %}
             <div class="space-y-4">
+                {% if form.project %}
                 <div>
                     <label for="id_project" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Project</label>
                     <div class="mt-1">
                         {{ form.project }}
                     </div>
                 </div>
+                {% endif %}
+                {% if form.assignee %}
                 <div>
                     <label for="id_assignee" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Assign To</label>
                     <div class="mt-1">
@@ -22,12 +25,15 @@
                         {% endif %}
                     </div>
                 </div>
+                {% endif %}
+                {% if form.parent %}
                 <div>
                     <label for="id_parent" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Parent task (optional)</label>
                     <div class="mt-1">
                         {{ form.parent }}
                     </div>
                 </div>
+                {% endif %}
                 <div>
                     <label for="id_title" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Title</label>
                     <div class="mt-1">
@@ -91,4 +97,18 @@
         color: #f8fafc;
     }
 </style>
+
+<script>
+    // Auto-resize description box as the user writes
+    const tx = document.getElementsByTagName("textarea");
+    for (let i = 0; i < tx.length; i++) {
+        tx[i].setAttribute("style", "height:" + (tx[i].scrollHeight) + "px;overflow-y:hidden;resize:none;");
+        tx[i].addEventListener("input", OnInput, false);
+    }
+
+    function OnInput() {
+        this.style.height = "auto";
+        this.style.height = (this.scrollHeight) + "px";
+    }
+</script>
 {% endblock content %}

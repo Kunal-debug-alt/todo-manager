@@ -341,10 +341,8 @@ class TaskCreate(LoginRequiredMixin, CreateView):
         form = super().get_form(form_class)
         editable_projects = editable_projects_for_user(self.request.user)
 
-        form.fields['project'].queryset = editable_projects
-        form.fields['parent'].queryset = Task.objects.select_related('project').filter(
-            Q(project__isnull=True, user=self.request.user) | Q(project__in=editable_projects)
-        )
+        if 'description' in form.fields:
+            form.fields['description'].widget.attrs.update({'rows': 3, 'style': 'resize: vertical; min-height: 80px;'})
 
         # Assignee dropdown should show members of the selected project.
         project_id = form.data.get('project') or self.request.GET.get('project')
@@ -353,9 +351,13 @@ class TaskCreate(LoginRequiredMixin, CreateView):
             project = editable_projects.filter(pk=project_id).first()
 
         if project:
+            form.fields['project'].queryset = editable_projects
+            form.fields['parent'].queryset = Task.objects.select_related('project').filter(project=project)
             form.fields['assignee'].queryset = member_users_for_project(project).order_by('username')
         else:
-            form.fields['assignee'].queryset = User.objects.filter(pk=self.request.user.pk)
+            for field in ['project', 'assignee', 'parent']:
+                if field in form.fields:
+                    del form.fields[field]
 
         if 'due_date' in form.fields:
             form.fields['due_date'].widget = forms.DateInput(attrs={'type': 'date'})
@@ -375,15 +377,18 @@ class TaskUpdate(LoginRequiredMixin, UpdateView):
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         editable_projects = editable_projects_for_user(self.request.user)
-        form.fields['project'].queryset = editable_projects
-        form.fields['parent'].queryset = Task.objects.select_related('project').filter(
-            Q(project__isnull=True, user=self.request.user) | Q(project__in=editable_projects)
-        ).exclude(pk=self.object.pk)
+
+        if 'description' in form.fields:
+            form.fields['description'].widget.attrs.update({'rows': 3, 'style': 'resize: vertical; min-height: 80px;'})
 
         if self.object.project_id:
+            form.fields['project'].queryset = editable_projects
+            form.fields['parent'].queryset = Task.objects.select_related('project').filter(project=self.object.project).exclude(pk=self.object.pk)
             form.fields['assignee'].queryset = member_users_for_project(self.object.project).order_by('username')
         else:
-            form.fields['assignee'].queryset = User.objects.filter(pk=self.request.user.pk)
+            for field in ['project', 'assignee', 'parent']:
+                if field in form.fields:
+                    del form.fields[field]
 
         if 'due_date' in form.fields:
             form.fields['due_date'].widget = forms.DateInput(attrs={'type': 'date'})
