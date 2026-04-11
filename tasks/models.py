@@ -86,6 +86,18 @@ class ProjectInvitation(models.Model):
         return f"Invite {self.email} → {self.project.name} ({self.role})"
 
 
+class ChatMessage(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='chat_messages')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_messages')
+    text = models.CharField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.author.username}: {self.text}"
+
 class Activity(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='activities')
     actor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')

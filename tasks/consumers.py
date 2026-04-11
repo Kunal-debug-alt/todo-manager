@@ -1,6 +1,7 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from asgiref.sync import sync_to_async
 
-from .models import Project
+from .models import Project, ChatMessage
 
 
 class RealtimeConsumer(AsyncJsonWebsocketConsumer):
@@ -14,6 +15,7 @@ class RealtimeConsumer(AsyncJsonWebsocketConsumer):
         await self.channel_layer.group_add(self.user_group, self.channel_name)
 
         self.project_group = None
+        self.project_id = None
         project_id = self.scope.get('url_route', {}).get('kwargs', {}).get('project_id')
         if project_id is not None:
             # Validate access to the project before joining its broadcast group.
@@ -28,6 +30,7 @@ class RealtimeConsumer(AsyncJsonWebsocketConsumer):
                     await self.close(code=4403)
                     return
 
+            self.project_id = project_id
             self.project_group = f"project_{project_id}"
             await self.channel_layer.group_add(self.project_group, self.channel_name)
 
@@ -40,8 +43,35 @@ class RealtimeConsumer(AsyncJsonWebsocketConsumer):
             await self.channel_layer.group_discard(self.project_group, self.channel_name)
 
     async def receive_json(self, content, **kwargs):
-        # Client is read-only; server pushes events.
-        return
+        user = self.scope.get('user')
+        msg_type = content.get('type')
+
+        if msg_type == 'chat_message' and self.project_id:
+            text = content.get('text', '').strip()
+            if text:
+                # Save to DB
+                await sync_to_async(ChatMessage.objects.create)(
+                    project_id=self.project_id,
+                    author=user,
+                    text=text
+                )
+                
+                # Broadcast back to the group
+                await self.channel_layer.group_send(
+                    self.project_group,
+                    {
+                        'type': 'chat_broadcast',
+                        'author': user.username,
+                        'text': text,
+                    }
+                )
+
+    async def chat_broadcast(self, event):
+        await self.send_json({
+            'type': 'chat_message',
+            'author': event.get('author'),
+            'text': event.get('text'),
+        })
 
     async def notify(self, event):
         await self.send_json(

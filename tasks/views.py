@@ -221,6 +221,9 @@ class TaskList(LoginRequiredMixin, ListView):
             context['project_total'] = total
             context['project_done'] = done
             context['project_percent'] = int((done / total) * 100) if total else 0
+            
+            # Send chats to the template
+            context['chat_messages'] = project.chat_messages.select_related('author').order_by('created_at')
 
         return context
 
