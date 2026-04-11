@@ -56,7 +56,10 @@
             <div class="absolute bottom-6">
                 {% if user.is_authenticated %}
                     <p>Hello, {{ user.username }}</p>
-                    <a href="{% url 'logout' %}" class="text-sm text-slate-500 hover:text-indigo-600">Logout</a>
+                    <form method="post" action="{% url 'logout' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-sm text-slate-500 hover:text-indigo-600 bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                    </form>
                 {% else %}
                     <a href="{% url 'login' %}" class="text-sm text-slate-500 hover:text-indigo-600">Login</a>
                 {% endif %}
