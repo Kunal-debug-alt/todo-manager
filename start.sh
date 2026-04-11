@@ -8,6 +8,4 @@ python manage.py migrate --no-input
 PORT="${PORT:-8000}"
 
 # Start the web server.
-exec gunicorn todo_project.wsgi:application \
-  --bind "0.0.0.0:${PORT}" \
-  --log-file -
+exec daphne -b 0.0.0.0 -p "${PORT}" todo_project.asgi:application
