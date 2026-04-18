@@ -483,6 +483,7 @@ class ProjectInviteForm(forms.Form):
             attrs={
                 'class': 'w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100',
                 'placeholder': 'member@example.com',
+                'required': 'required',
             }
         )
     )

@@ -9,6 +9,7 @@ class RegisterForm(UserCreationForm):
         widget=forms.EmailInput(
             attrs={
                 'placeholder': 'you@example.com',
+                'required': 'required',
             }
         ),
     )
