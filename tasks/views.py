@@ -208,10 +208,9 @@ class TaskList(LoginRequiredMixin, ListView):
                 project=project
             )
         else:
-            # Dashboard: personal tasks (no project) + project tasks assigned to me
+            # Dashboard: personal tasks only (no project attached)
             qs = Task.objects.select_related('project', 'parent', 'assignee').filter(
-                Q(project__isnull=True, user=user)
-                | Q(project__in=accessible_projects, assignee=user)
+                project__isnull=True, user=user
             )
 
         tag = self.request.GET.get('tag')
