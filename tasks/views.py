@@ -10,6 +10,7 @@ from django.contrib.auth import login
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.list import ListView
+from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views import View
 
@@ -109,6 +110,15 @@ def user_can_view_project(project, user):
         project.user_id == user.id
         or ProjectMembership.objects.filter(project=project, user=user).exists()
     )
+
+
+class LandingView(TemplateView):
+    template_name = 'tasks/landing.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('tasks:task_list')
+        return super().get(request, *args, **kwargs)
 
 class RegisterPage(FormView):
     template_name = 'tasks/register.html'

@@ -1,0 +1,175 @@
+{% extends 'tasks/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-6 pt-20">
+    <!-- Brand Logo in Top Left -->
+    <div class="absolute top-8 left-8 z-50 flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-tr from-accent-600 to-primary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">TaskFlow</span>
+    </div>
+
+    <!-- Animated background accents -->
+    <div class="absolute top-0 left-1/4 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-500/10 rounded-full blur-3xl animate-pulse"
+        style="animation-delay: 2s"></div>
+
+    <div class="relative z-10 max-w-4xl mx-auto">
+        <div
+            class="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-primary-50 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-800 mb-8 animate-bounce">
+            <span class="flex h-2 w-2 rounded-full bg-primary-600"></span>
+            <span class="text-xs font-bold uppercase tracking-widest text-primary-700 dark:text-primary-400">Streamline
+                Your Productivity</span>
+        </div>
+
+        <h1
+            class="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-6 leading-tight">
+            Manage Tasks with <br />
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-accent-600">Premium
+                Precision</span>
+        </h1>
+
+        <p class="text-xl text-slate-500 dark:text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Where strategy meets conversation. Execute your tasks and coordinate with your team through integrated
+            real-time chat and precision tracking.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <a href="{% url 'tasks:register' %}"
+                class="w-full sm:w-auto px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold shadow-2xl shadow-primary-500/40 hover:bg-primary-700 hover:-translate-y-1 transition-all text-lg">
+                Get Started for Free
+            </a>
+            <a href="#preview"
+                class="w-full sm:w-auto px-8 py-4 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-lg">
+                View Demo
+            </a>
+        </div>
+    </div>
+
+    <!-- Product Reveal (Bento Grid) -->
+    <div id="preview" class="mt-32 w-full max-w-7xl mx-auto px-4 py-20 divide-y divide-slate-200/50 dark:divide-slate-800/50">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">Precision Meets Collaboration</h2>
+            <p class="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">Experience a workflow that feels as good as it works. Our integrated dashboard brings everything together.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-16">
+            <!-- Pending Tasks Card -->
+            <div class="group relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-slate-900/50 glass border border-slate-200/50 dark:border-slate-800/50 shadow-2xl transition-all hover:-translate-y-2">
+                <div class="p-8 pb-0">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-primary-600 mb-1 block">Up Next</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Focus on What's Pending</h3>
+                </div>
+                <div class="px-8 pb-8 transform transition-transform duration-700 group-hover:scale-[1.03]">
+                    <img src="{% static 'pendingtask.png' %}" alt="Pending Tasks" class="w-full rounded-2xl shadow-lg border border-slate-200/30 dark:border-slate-700/30">
+                </div>
+            </div>
+
+            <!-- Completed Tasks Card -->
+            <div class="group relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-slate-900/50 glass border border-slate-200/50 dark:border-slate-800/50 shadow-2xl transition-all hover:-translate-y-2">
+                <div class="p-8 pb-0">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-green-600 mb-1 block">Achievement</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Track Your Wins</h3>
+                </div>
+                <div class="px-8 pb-8 transform transition-transform duration-700 group-hover:scale-[1.03]">
+                    <img src="{% static 'completedtask1.png' %}" alt="Completed Tasks" class="w-full rounded-2xl shadow-lg border border-slate-200/30 dark:border-slate-700/30">
+                </div>
+            </div>
+
+            <!-- Progress Overview Card -->
+            <div class="md:col-span-2 group relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-slate-900/50 glass border border-slate-200/50 dark:border-slate-800/50 shadow-2xl transition-all hover:-translate-y-2">
+                <div class="p-8 pb-4 text-center">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-accent-600 mb-1 block">Project Velocity</span>
+                    <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Visualize Your Progress</h3>
+                </div>
+                <div class="px-8 pb-12 max-w-4xl mx-auto transform transition-transform duration-700 group-hover:scale-[1.01]">
+                    <img src="{% static 'progress.png' %}" alt="Project Progress" class="w-full rounded-2xl shadow-xl border border-slate-200/30 dark:border-slate-700/30">
+                </div>
+                <!-- Accent Gradient -->
+                <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-accent-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div id="features"
+        class="mt-32 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto py-20 border-t border-slate-200/50 dark:border-slate-800/50">
+        <div
+            class="p-8 rounded-3xl bg-white dark:bg-slate-900/50 glass border border-slate-200/50 dark:border-slate-800/50 hover:-translate-y-2 transition-transform">
+            <div
+                class="w-12 h-12 bg-primary-100 dark:bg-primary-900/40 rounded-2xl flex items-center justify-center text-primary-600 dark:text-primary-400 mb-6 mx-auto">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                    </path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Collaboration</h3>
+            <p class="text-sm text-slate-500">Chat instantly with teammates directly inside your project workspace</p>
+        </div>
+
+        <div
+            class="p-8 rounded-3xl bg-white dark:bg-slate-900/50 glass border border-slate-200/50 dark:border-slate-800/50 hover:-translate-y-2 transition-transform">
+            <div
+                class="w-12 h-12 bg-accent-100 dark:bg-accent-900/40 rounded-2xl flex items-center justify-center text-accent-600 dark:text-accent-400 mb-6 mx-auto">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Real-time Dashboard</h3>
+            <p class="text-sm text-slate-500">Stay updated with live feedback on task completions and project progress.
+            </p>
+        </div>
+
+        <div
+            class="p-8 rounded-3xl bg-white dark:bg-slate-900/50 glass border border-slate-200/50 dark:border-slate-800/50 hover:-translate-y-2 transition-transform">
+            <div
+                class="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-2xl flex items-center justify-center text-green-600 dark:text-green-400 mb-6 mx-auto">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                    </path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Dark Mode</h3>
+            <p class="text-sm text-slate-500">A beautiful, health-conscious dark theme that adapts to your surroundings.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Custom header for landing page -->
+{% block header_extra %}
+<div class="absolute top-8 right-8 z-50 flex items-center space-x-4">
+    <a href="{% url 'login' %}"
+        class="px-5 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-primary-600 transition-colors">Login</a>
+    <a href="{% url 'tasks:register' %}"
+        class="px-5 py-2.5 text-sm font-bold bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm">Register</a>
+</div>
+{% endblock header_extra %}
+
+<!-- Override sidebar behavior for landing page -->
+<style>
+    #sidebar {
+        display: none !important;
+    }
+
+    aside+div {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding-top: 0 !important;
+    }
+
+    header {
+        display: none !important;
+    }
+</style>
+{% endblock content %}

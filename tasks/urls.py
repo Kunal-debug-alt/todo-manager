@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    TaskList, TaskCreate, TaskUpdate, TaskDelete, TaskToggleComplete, RegisterPage,
+    TaskList, TaskCreate, TaskUpdate, TaskDelete, TaskToggleComplete, RegisterPage, LandingView,
     ProjectList, ProjectCreate, ProjectUpdate, ProjectDelete,
     ProjectInvite, ProjectInviteAccept, ProjectJoin, ProjectJoinByCode, ProjectMemberUpdateRole, ProjectMemberRemove,
 )
@@ -8,7 +8,8 @@ from .views import (
 app_name = 'tasks'
 
 urlpatterns = [
-    path('', TaskList.as_view(), name='task_list'),
+    path('', LandingView.as_view(), name='landing'),
+    path('dashboard/', TaskList.as_view(), name='task_list'),
     path('project/<int:project_id>/', TaskList.as_view(), name='tasks_in_project'),
     path('register/', RegisterPage.as_view(), name='register'),
     path('create/', TaskCreate.as_view(), name='task_create'),
