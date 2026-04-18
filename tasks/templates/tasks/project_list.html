@@ -44,8 +44,17 @@
                 </div>
 
                 <a href="{% url 'tasks:tasks_in_project' project.id %}" class="block group/link">
-                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover/link:text-primary-600 transition-colors">{{ project.name }}</h3>
-                    <p class="text-sm text-slate-500 mb-6 line-clamp-2">Manage all tasks related to {{ project.name }} here.</p>
+                    <div class="flex items-center gap-2 mb-2">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white group-hover/link:text-primary-600 transition-colors">{{ project.name }}</h3>
+                        {% if project.my_pending > 0 %}
+                            <span class="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-red-500 text-white text-[11px] font-bold shadow-sm" title="{{ project.my_pending }} task{{ project.my_pending|pluralize }} assigned to you">({{ project.my_pending }})</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm text-slate-500 mb-6 line-clamp-2">Manage all tasks related to {{ project.name }} here.
+                        {% if project.my_pending > 0 %}
+                            &bull; <span class="text-red-500 font-semibold">{{ project.my_pending }} assigned to you</span>
+                        {% endif %}
+                    </p>
                 </a>
 
                 <div class="mt-auto">

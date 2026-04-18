@@ -3,6 +3,7 @@ from .views import (
     TaskList, TaskCreate, TaskUpdate, TaskDelete, TaskToggleComplete, RegisterPage, LandingView,
     ProjectList, ProjectCreate, ProjectUpdate, ProjectDelete,
     ProjectInvite, ProjectInviteAccept, ProjectJoin, ProjectJoinByCode, ProjectMemberUpdateRole, ProjectMemberRemove,
+    NotificationListView, MarkNotificationsReadView,
 )
 
 app_name = 'tasks'
@@ -27,4 +28,8 @@ urlpatterns = [
     path('projects/invite/accept/<str:token>/', ProjectInviteAccept.as_view(), name='project_invite_accept'),
     path('projects/<int:pk>/members/<int:membership_id>/role/', ProjectMemberUpdateRole.as_view(), name='project_member_role'),
     path('projects/<int:pk>/members/<int:membership_id>/remove/', ProjectMemberRemove.as_view(), name='project_member_remove'),
+
+    # Notification API
+    path('api/notifications/', NotificationListView.as_view(), name='notifications_list'),
+    path('api/notifications/mark-read/', MarkNotificationsReadView.as_view(), name='notifications_mark_read'),
 ]

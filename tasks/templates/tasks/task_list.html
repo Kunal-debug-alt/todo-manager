@@ -5,17 +5,13 @@
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
     <div>
         <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            {% if project %}{{ project.name }}{% else %}All Tasks{% endif %}
+            {% if project %}{{ project.name }}{% else %}My Tasks{% endif %}
         </h2>
-        <p class="text-slate-500 dark:text-slate-400 mt-1">Manage your workflow and collaborate in real-time.</p>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">
+            {% if project %}Group tasks & collaboration for {{ project.name }}.{% else %}Your personal tasks and tasks assigned to you across all projects.{% endif %}
+        </p>
     </div>
     <div class="flex items-center space-x-3">
-        <!-- Notification Bell Icon -->
-        <button onclick="alert('Whenever someone assigns you a task, you will see a live popup notification on your screen instantly!')" class="relative p-2.5 text-slate-400 hover:text-primary-600 hover:bg-white dark:hover:bg-slate-800 rounded-xl transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700" title="Notifications">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-            <span class="absolute top-2.5 right-2.5 block h-2.5 w-2.5 rounded-full bg-red-500 ring-4 ring-[#fbfcfd] dark:ring-[#020617] animate-pulse"></span>
-        </button>
-
         {% if project %}
             {% if project_can_edit %}
                 <a href="{% url 'tasks:task_create' %}?project={{ project.id }}" class="flex items-center space-x-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary-500/25 hover:bg-primary-700 hover:-translate-y-0.5 transition-all">
@@ -33,6 +29,23 @@
 </div>
 
 {% if project %}
+    <!-- Project stats banner -->
+    <div class="mb-6 flex flex-wrap gap-4 items-center">
+        <div class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-primary-500"></span>
+            <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">{{ project_total }} total task{{ project_total|pluralize }}</span>
+        </div>
+        {% if my_pending_in_project > 0 %}
+        <div class="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-2xl shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+            <span class="text-sm font-semibold text-red-600 dark:text-red-400">{{ my_pending_in_project }} assigned to you</span>
+        </div>
+        {% endif %}
+        <div class="flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/40 rounded-2xl shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+            <span class="text-sm font-semibold text-green-600 dark:text-green-400">{{ project_percent }}% complete</span>
+        </div>
+    </div>
     <div class="mb-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2 bg-white dark:bg-slate-900/50 glass p-6 rounded-3xl border border-slate-200/50 dark:border-slate-800/50 flex flex-col justify-center">
             <div class="flex items-center justify-between mb-2">

@@ -93,7 +93,12 @@
                     </a>
                     <a href="{% url 'tasks:project_list' %}" class="flex items-center space-x-3 py-3 px-4 rounded-xl transition-all duration-200 group hover:bg-slate-100 dark:hover:bg-slate-800/50 {% if request.resolver_match.url_name == 'project_list' %}bg-primary-50 dark:bg-primary-900/10 text-primary-600 dark:text-primary-400 font-medium{% else %}text-slate-500 dark:text-slate-400{% endif %}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2z"></path></svg>
-                        <span>Projects</span>
+                        <span class="flex-1">Projects</span>
+                        {% if total_my_pending and total_my_pending > 0 %}
+                            <span id="sidebar-project-badge" class="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold shadow-sm">{{ total_my_pending }}</span>
+                        {% else %}
+                            <span id="sidebar-project-badge" class="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold shadow-sm hidden">0</span>
+                        {% endif %}
                     </a>
                 </nav>
             </div>
@@ -138,7 +143,28 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                     <button id="theme-toggle" class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
+                    <!-- Notification Bell -->
+                    {% if user.is_authenticated %}
+                    <div class="relative" id="notif-wrapper">
+                        <button id="notif-btn" onclick="toggleNotifDropdown()" class="relative p-2 text-slate-400 hover:text-primary-600 hover:bg-white dark:hover:bg-slate-800 rounded-xl transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700" title="Notifications">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                            <span id="notif-count-badge" class="absolute -top-0.5 -right-0.5 hidden min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center shadow-sm ring-2 ring-white dark:ring-slate-950"></span>
+                        </button>
+
+                        <!-- Notification Dropdown -->
+                        <div id="notif-dropdown" class="hidden absolute right-0 top-12 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                            <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+                                <span class="text-sm font-bold text-slate-900 dark:text-white">Notifications</span>
+                                <button onclick="markAllRead()" class="text-xs text-primary-600 hover:text-primary-700 font-medium">Mark all read</button>
+                            </div>
+                            <div id="notif-list" class="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+                                <p id="notif-empty" class="text-center text-slate-400 text-sm py-8">You're all caught up! 🎉</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <button id="theme-toggle" class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
                         <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                         <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
                     </button>
@@ -206,6 +232,113 @@
             }
         }
 
+        // ===== NOTIFICATION SYSTEM =====
+        let _notifDropdownOpen = false;
+        let _notifData = [];
+
+        function toggleNotifDropdown() {
+            _notifDropdownOpen = !_notifDropdownOpen;
+            const dd = document.getElementById('notif-dropdown');
+            if (_notifDropdownOpen) {
+                dd.classList.remove('hidden');
+                // Mark all as read after opening
+                setTimeout(markAllRead, 1200);
+            } else {
+                dd.classList.add('hidden');
+            }
+        }
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            const wrapper = document.getElementById('notif-wrapper');
+            if (wrapper && !wrapper.contains(e.target) && _notifDropdownOpen) {
+                _notifDropdownOpen = false;
+                document.getElementById('notif-dropdown').classList.add('hidden');
+            }
+        });
+
+        function renderNotifications(notifs) {
+            const list = document.getElementById('notif-list');
+            const empty = document.getElementById('notif-empty');
+            const badge = document.getElementById('notif-count-badge');
+            const sidebarBadge = document.getElementById('sidebar-project-badge');
+            if (!list) return;
+
+            // Update bell badge
+            if (badge) {
+                if (notifs.length > 0) {
+                    badge.textContent = notifs.length > 99 ? '99+' : notifs.length;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+
+            // Remove old notification items (keep empty message)
+            list.querySelectorAll('.notif-item').forEach(el => el.remove());
+
+            if (notifs.length === 0) {
+                if (empty) empty.classList.remove('hidden');
+                return;
+            }
+            if (empty) empty.classList.add('hidden');
+
+            notifs.forEach(n => {
+                const el = document.createElement('div');
+                el.className = 'notif-item flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors';
+                const timeAgo = formatTimeAgo(n.created_at);
+                el.innerHTML = `
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-slate-800 dark:text-slate-200 font-medium leading-snug">${n.message}</p>
+                        <p class="text-xs text-slate-400 mt-0.5">${timeAgo}</p>
+                    </div>
+                    <span class="flex-shrink-0 w-2 h-2 rounded-full bg-primary-500 mt-1.5"></span>
+                `;
+                list.insertBefore(el, list.firstChild);
+            });
+        }
+
+        function formatTimeAgo(iso) {
+            const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+            if (diff < 60) return 'just now';
+            if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+            if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+            return Math.floor(diff / 86400) + 'd ago';
+        }
+
+        async function fetchNotifications() {
+            try {
+                const resp = await fetch('{% url "tasks:notifications_list" %}', { credentials: 'same-origin' });
+                if (!resp.ok) return;
+                const data = await resp.json();
+                _notifData = data.notifications || [];
+                renderNotifications(_notifData);
+            } catch (e) { /* silently ignore */ }
+        }
+
+        async function markAllRead() {
+            try {
+                await fetch('{% url "tasks:notifications_mark_read" %}', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({}),
+                });
+                _notifData = [];
+                renderNotifications([]);
+            } catch (e) { /* silently ignore */ }
+        }
+
+        {% if user.is_authenticated %}
+        // Load notifications on page load
+        fetchNotifications();
+        // Poll every 30s as fallback (WS is primary)
+        setInterval(fetchNotifications, 30000);
+        {% endif %}
+
         (function () {
             const toastRoot = document.getElementById('toast-root');
 
@@ -256,6 +389,8 @@
 
                 if (data && data.type === 'notify' && data.message) {
                     showToast(data.message);
+                    // Also refresh notification list
+                    fetchNotifications();
                 }
             };
         })();

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q, Count
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
 from django.views.generic.edit import FormView
@@ -143,16 +143,28 @@ class ProjectList(LoginRequiredMixin, ListView):
     template_name = 'tasks/project_list.html'
 
     def get_queryset(self):
+        user = self.request.user
         return (
-            accessible_projects_for_user(self.request.user)
+            accessible_projects_for_user(user)
             .annotate(
                 total_tasks=Count('task', distinct=True),
                 done_tasks=Count('task', filter=Q(task__completed=True), distinct=True),
+                my_pending=Count(
+                    'task',
+                    filter=Q(task__assignee=user, task__completed=False),
+                    distinct=True,
+                ),
             )
         )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Total across all projects for sidebar badge
+        context['total_my_pending'] = Task.objects.filter(
+            project__isnull=False,
+            assignee=self.request.user,
+            completed=False,
+        ).count()
         return context
 
 class ProjectCreate(LoginRequiredMixin, CreateView):
@@ -188,18 +200,23 @@ class TaskList(LoginRequiredMixin, ListView):
         user = self.request.user
         accessible_projects = accessible_projects_for_user(user)
 
-        qs = Task.objects.select_related('project', 'parent', 'assignee').filter(
-            Q(project__isnull=True, user=user) | Q(project__in=accessible_projects)
-        )
+        project_id = self.kwargs.get('project_id')
+        if project_id:
+            # Project view: show ALL tasks in the project (group view)
+            project = get_object_or_404(accessible_projects, pk=project_id)
+            qs = Task.objects.select_related('project', 'parent', 'assignee').filter(
+                project=project
+            )
+        else:
+            # Dashboard: personal tasks (no project) + project tasks assigned to me
+            qs = Task.objects.select_related('project', 'parent', 'assignee').filter(
+                Q(project__isnull=True, user=user)
+                | Q(project__in=accessible_projects, assignee=user)
+            )
 
         tag = self.request.GET.get('tag')
         if tag:
             qs = qs.filter(tags__icontains=tag)
-
-        project_id = self.kwargs.get('project_id')
-        if project_id:
-            project = get_object_or_404(accessible_projects, pk=project_id)
-            qs = qs.filter(project=project)
 
         return qs
 
@@ -218,6 +235,13 @@ class TaskList(LoginRequiredMixin, ListView):
         context['pending_count'] = context['pending_tasks'].count()
         context['completed_count'] = context['completed_tasks'].count()
 
+        # Total project-assigned pending tasks for sidebar badge
+        context['total_my_pending'] = Task.objects.filter(
+            project__isnull=False,
+            assignee=user,
+            completed=False,
+        ).count()
+
         project_id = self.kwargs.get('project_id')
         if project_id:
             project = get_object_or_404(accessible_projects_for_user(self.request.user), pk=project_id)
@@ -231,11 +255,56 @@ class TaskList(LoginRequiredMixin, ListView):
             context['project_total'] = total
             context['project_done'] = done
             context['project_percent'] = int((done / total) * 100) if total else 0
-            
+
+            # My pending tasks in this specific project
+            context['my_pending_in_project'] = Task.objects.filter(
+                project=project, assignee=user, completed=False
+            ).count()
+
             # Send chats to the template
             context['chat_messages'] = project.chat_messages.select_related('author').order_by('created_at')
 
         return context
+
+
+class NotificationListView(LoginRequiredMixin, View):
+    """JSON API: returns unread notifications for the logged-in user."""
+
+    def get(self, request):
+        notifs = (
+            Notification.objects.filter(user=request.user, is_read=False)
+            .select_related('project', 'task')
+            .order_by('-created_at')[:20]
+        )
+        data = [
+            {
+                'id': n.id,
+                'message': n.message,
+                'project_id': n.project_id,
+                'task_id': n.task_id,
+                'created_at': n.created_at.isoformat(),
+            }
+            for n in notifs
+        ]
+        return JsonResponse({'notifications': data, 'unread_count': len(data)})
+
+
+class MarkNotificationsReadView(LoginRequiredMixin, View):
+    """JSON API: marks all (or specific) notifications as read."""
+
+    def post(self, request):
+        import json
+        try:
+            body = json.loads(request.body)
+            ids = body.get('ids')  # optional list of specific IDs
+        except Exception:
+            ids = None
+
+        qs = Notification.objects.filter(user=request.user, is_read=False)
+        if ids:
+            qs = qs.filter(id__in=ids)
+        qs.update(is_read=True)
+        return JsonResponse({'ok': True})
 
 
 class TaskToggleComplete(LoginRequiredMixin, View):
