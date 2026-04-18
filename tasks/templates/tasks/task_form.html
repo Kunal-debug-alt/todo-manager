@@ -1,114 +1,154 @@
 {% extends 'tasks/base.html' %}
 
 {% block content %}
-<div class="max-w-lg mx-auto">
-    <div class="bg-white dark:bg-slate-800 p-8 rounded-lg shadow-md">
-        <h2 class="text-2xl font-bold mb-6">{% if object %}Update Task{% else %}Create Task{% endif %}</h2>
-        <form method="post">
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white dark:bg-slate-900/50 glass p-10 rounded-3xl border border-slate-200/50 dark:border-slate-800/50 shadow-2xl">
+        <div class="flex items-center space-x-4 mb-8">
+            <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/40 rounded-2xl flex items-center justify-center text-primary-600 dark:text-primary-400 shadow-inner">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">{% if object %}Update Task{% else %}Create New Task{% endif %}</h2>
+                <p class="text-sm text-slate-500">Fill in the details to keep your workflow organized.</p>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-6">
             {% csrf_token %}
-            <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {% if form.project %}
-                <div>
-                    <label for="id_project" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Project</label>
-                    <div class="mt-1">
-                        {{ form.project }}
-                    </div>
+                <div class="md:col-span-2">
+                    <label for="id_project" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Project</label>
+                    {{ form.project }}
                 </div>
                 {% endif %}
+
+                <div class="md:col-span-2">
+                    <label for="id_title" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Title</label>
+                    {{ form.title }}
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="id_description" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Description</label>
+                    {{ form.description }}
+                </div>
+
+                <div>
+                    <label for="id_due_date" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Due Date</label>
+                    {{ form.due_date }}
+                </div>
+
+                <div>
+                    <label for="id_priority" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Priority</label>
+                    {{ form.priority }}
+                </div>
+
                 {% if form.assignee %}
-                <div>
-                    <label for="id_assignee" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Assign To</label>
-                    <div class="mt-1">
-                        {{ form.assignee }}
-                        {% if form.assignee.errors %}
-                            <p class="text-sm text-red-500 mt-1">{{ form.assignee.errors|striptags }}</p>
-                        {% endif %}
-                    </div>
+                <div class="md:col-span-1">
+                    <label for="id_assignee" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Assign To</label>
+                    {{ form.assignee }}
+                    {% if form.assignee.errors %}
+                        <p class="text-xs text-red-500 mt-1 px-1">{{ form.assignee.errors|striptags }}</p>
+                    {% endif %}
                 </div>
                 {% endif %}
+
                 {% if form.parent %}
-                <div>
-                    <label for="id_parent" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Parent task (optional)</label>
-                    <div class="mt-1">
-                        {{ form.parent }}
-                    </div>
+                <div class="md:col-span-1">
+                    <label for="id_parent" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Parent Task</label>
+                    {{ form.parent }}
                 </div>
                 {% endif %}
-                <div>
-                    <label for="id_title" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Title</label>
-                    <div class="mt-1">
-                        {{ form.title }}
-                    </div>
+
+                <div class="md:col-span-2">
+                    <label for="id_tags" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Tags (comma separated)</label>
+                    {{ form.tags }}
                 </div>
-                <div>
-                    <label for="id_description" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
-                    <div class="mt-1">
-                        {{ form.description }}
-                    </div>
-                </div>
-                <div>
-                    <label for="id_due_date" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Due date</label>
-                    <div class="mt-1">
-                        {{ form.due_date }}
-                    </div>
-                </div>
-                <div>
-                    <label for="id_priority" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Priority</label>
-                    <div class="mt-1">
-                        {{ form.priority }}
-                    </div>
-                </div>
-                <div>
-                    <label for="id_tags" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Labels/Tags (comma separated)</label>
-                    <div class="mt-1">
-                        {{ form.tags }}
-                    </div>
-                </div>
+
                 {% if object %}
-                <div>
-                    <div class="flex items-center">
+                <div class="md:col-span-2">
+                    <label class="relative inline-flex items-center cursor-pointer group px-1">
                         {{ form.completed }}
-                        <label for="id_completed" class="ml-2 block text-sm text-slate-900 dark:text-slate-100">Completed</label>
-                    </div>
+                        <div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 rounded-full peer-checked:bg-primary-600 transition-all"></div>
+                        <span class="ml-3 text-sm font-medium text-slate-700 dark:text-slate-300">Mark as Completed</span>
+                    </label>
+                    <style>
+                        input[id="id_completed"] {
+                            position: absolute;
+                            opacity: 0;
+                            width: 0;
+                            height: 0;
+                        }
+                        input[id="id_completed"]:checked + div::after {
+                            transform: translateX(20px);
+                            background-color: white;
+                        }
+                        label[for="id_completed"] + div::after {
+                            content: "";
+                            position: absolute;
+                            top: 2px;
+                            left: 2px;
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            background-color: #94a3b8;
+                            transition: all 0.3s;
+                        }
+                    </style>
                 </div>
                 {% endif %}
             </div>
-            <div class="mt-6">
-                <button type="submit" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
-                    {% if object %}Update{% else %}Create{% endif %}
+
+            <div class="pt-6 border-t border-slate-200/50 dark:border-slate-800/50 flex space-x-4">
+                <button type="submit" class="flex-1 bg-primary-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary-500/25 hover:bg-primary-700 hover:-translate-y-0.5 transition-all">
+                    {% if object %}Save Changes{% else %}Create Task{% endif %}
                 </button>
+                <a href="{% url 'tasks:task_list' %}" class="px-6 py-3 rounded-2xl font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-center">
+                    Cancel
+                </a>
             </div>
         </form>
     </div>
 </div>
 
 <style>
-    input[type="text"], textarea, select {
+    input[type="text"], input[type="date"], textarea, select {
         width: 100%;
-        padding: 0.5rem;
-        border-radius: 0.375rem;
-        border: 1px solid #cbd5e1;
-        background-color: #f1f5f9;
+        padding: 0.75rem 1rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(203, 213, 225, 0.5);
+        background-color: #fbfcfd;
         color: #0f172a;
+        transition: all 0.2s;
+        font-size: 0.875rem;
     }
-    .dark input[type="text"], .dark textarea, .dark select {
-        border-color: #475569;
-        background-color: #1e293b;
+    .dark input[type="text"], .dark input[type="date"], .dark textarea, .dark select {
+        border-color: rgba(71, 85, 105, 0.5);
+        background-color: #0f172a;
         color: #f8fafc;
+    }
+    input:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        background-color: white;
+    }
+    .dark input:focus, .dark textarea:focus, .dark select:focus {
+        background-color: #020617;
     }
 </style>
 
 <script>
-    // Auto-resize description box as the user writes
+    // Auto-resize description box
     const tx = document.getElementsByTagName("textarea");
     for (let i = 0; i < tx.length; i++) {
-        tx[i].setAttribute("style", "height:" + (tx[i].scrollHeight) + "px;overflow-y:hidden;resize:none;");
-        tx[i].addEventListener("input", OnInput, false);
-    }
-
-    function OnInput() {
-        this.style.height = "auto";
-        this.style.height = (this.scrollHeight) + "px";
+        tx[i].style.height = (tx[i].scrollHeight) + "px";
+        tx[i].style.overflowY = "hidden";
+        tx[i].style.resize = "none";
+        tx[i].addEventListener("input", function() {
+            this.style.height = "auto";
+            this.style.height = (this.scrollHeight) + "px";
+        }, false);
     }
 </script>
 {% endblock content %}

@@ -3,100 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To-Do List</title>
+    <title>To-Do Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
                     colors: {
-                        slate: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            200: '#e2e8f0',
-                            300: '#cbd5e1',
-                            400: '#94a3b8',
-                            500: '#64748b',
-                            600: '#475569',
-                            700: '#334155',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                            950: '#020617',
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
                         },
-                        indigo: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            200: '#c7d2fe',
-                            300: '#a5b4fc',
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81',
-                            950: '#1e1b4b',
+                        accent: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
                         }
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
                     }
                 }
             }
         }
     </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .nav-link-active {
+            background: linear-gradient(to right, rgba(139, 92, 246, 0.1), transparent);
+            border-left: 3px solid #8b5cf6;
+        }
+    </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
     <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-50 z-30 hidden" onclick="toggleSidebar()"></div>
     
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen overflow-hidden bg-[#fbfcfd] dark:bg-[#020617]">
         <!-- Sidebar -->
-        <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 transform -translate-x-full transition duration-300 ease-in-out bg-white dark:bg-slate-900 p-6 border-r border-slate-200 dark:border-slate-700 z-40 flex flex-col">
-            <div class="flex items-center justify-between mb-8">
-                <h1 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">To-Do Manager</h1>
-                <button onclick="toggleSidebar()" class="text-slate-500 hover:text-red-500 focus:outline-none">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+        <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 transform -translate-x-full lg:translate-x-0 transition-all duration-300 ease-in-out bg-white dark:bg-slate-900/50 glass border-r border-slate-200/50 dark:border-slate-800/50 z-40 flex flex-col shadow-xl lg:shadow-none">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-10">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-tr from-accent-600 to-primary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <h1 class="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">TaskFlow</h1>
+                    </div>
+                    <button onclick="toggleSidebar()" class="lg:hidden p-2 text-slate-400 hover:text-red-500 transition-colors">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                
+                <nav class="space-y-1">
+                    <a href="{% url 'tasks:task_list' %}" class="flex items-center space-x-3 py-3 px-4 rounded-xl transition-all duration-200 group hover:bg-slate-100 dark:hover:bg-slate-800/50 {% if request.resolver_match.url_name == 'task_list' %}bg-primary-50 dark:bg-primary-900/10 text-primary-600 dark:text-primary-400 font-medium{% else %}text-slate-500 dark:text-slate-400{% endif %}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{% url 'tasks:project_list' %}" class="flex items-center space-x-3 py-3 px-4 rounded-xl transition-all duration-200 group hover:bg-slate-100 dark:hover:bg-slate-800/50 {% if request.resolver_match.url_name == 'project_list' %}bg-primary-50 dark:bg-primary-900/10 text-primary-600 dark:text-primary-400 font-medium{% else %}text-slate-500 dark:text-slate-400{% endif %}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2z"></path></svg>
+                        <span>Projects</span>
+                    </a>
+                </nav>
             </div>
-            <nav class="flex-1">
-                <ul>
-                    <li><a href="{% url 'tasks:task_list' %}" class="flex items-center py-2 px-4 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">All Tasks</a></li>
-                    <li><a href="{% url 'tasks:project_list' %}" class="flex items-center py-2 px-4 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">Projects</a></li>
-                </ul>
-            </nav>
-            <div class="mt-auto pt-6 border-t border-slate-200 dark:border-slate-700">
+
+            <div class="mt-auto p-8 border-t border-slate-200/50 dark:border-slate-800/50">
                 {% if user.is_authenticated %}
-                    <p class="mb-2">Hello, {{ user.username }}</p>
-                    <form method="post" action="{% url 'logout' %}" class="inline">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-sm">
+                            {{ user.username|slice:":1"|upper }}
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold truncate text-slate-900 dark:text-slate-100">{{ user.username }}</p>
+                            <p class="text-xs text-slate-500 truncate">Premium Member</p>
+                        </div>
+                    </div>
+                    <form method="post" action="{% url 'logout' %}" class="block">
                         {% csrf_token %}
-                        <button type="submit" class="text-sm text-slate-500 hover:text-indigo-600 bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                        <button type="submit" class="w-full flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                            <span>Sign Out</span>
+                        </button>
                     </form>
                 {% else %}
-                    <a href="{% url 'login' %}" class="text-sm text-slate-500 hover:text-indigo-600">Login</a>
+                    <a href="{% url 'login' %}" class="w-full flex items-center justify-center py-3 px-4 rounded-xl bg-primary-600 text-white font-semibold shadow-lg shadow-primary-500/20 hover:bg-primary-700 transition-all">
+                        Sign In
+                    </a>
                 {% endif %}
             </div>
         </aside>
 
-        <!-- Main Workspace -->
-        <div class="flex-1 flex flex-col min-w-0">
-            <header class="flex items-center justify-between p-4 px-8 bg-white dark:bg-slate-800/50 shadow-sm">
+        <div class="flex-1 flex flex-col min-w-0 transition-all duration-300 lg:ml-72">
+            <header class="flex items-center justify-between p-6 px-8 bg-white/80 dark:bg-slate-950/50 glass sticky top-0 z-30 border-b border-slate-200/50 dark:border-slate-800/50">
                 <div class="flex items-center">
-                    <button onclick="toggleSidebar()" class="text-slate-500 hover:text-indigo-600 focus:outline-none mr-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <button onclick="toggleSidebar()" class="lg:hidden p-2 -ml-2 mr-4 text-slate-500 hover:text-primary-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </button>
-                    <h1 class="text-xl font-bold text-indigo-600 dark:text-indigo-400">To-Do Manager</h1>
+                    <div class="lg:hidden flex items-center space-x-2">
+                         <div class="w-8 h-8 bg-gradient-to-tr from-accent-600 to-primary-500 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <h1 class="text-lg font-bold tracking-tight dark:text-white">TaskFlow</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                     <button id="theme-toggle" class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
+                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    </button>
                 </div>
             </header>
 
             <!-- Main Content -->
-            <main class="flex-1 p-8 overflow-y-auto w-full">
-                {% block content %}
-                {% endblock content %}
+            <main class="flex-1 p-8 lg:p-12 overflow-y-auto w-full scroll-smooth">
+                <div class="max-w-7xl mx-auto">
+                    {% block content %}
+                    {% endblock content %}
+                </div>
             </main>
         </div>
     </div>
 
-    <div id="toast-root" class="fixed bottom-6 right-6 space-y-2 z-50"></div>
+    <div id="toast-root" class="fixed bottom-6 right-6 space-y-3 z-50"></div>
 
     <script>
+        // Dark Mode Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        });
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
@@ -115,11 +212,17 @@
             function showToast(message) {
                 if (!toastRoot) return;
                 const el = document.createElement('div');
-                el.className = 'max-w-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md rounded-lg px-4 py-3 text-sm';
-                el.textContent = message;
+                el.className = 'max-w-sm bg-white dark:bg-slate-800 glass border border-slate-200 dark:border-slate-700 shadow-2xl rounded-2xl px-5 py-4 text-sm font-medium transform transition-all duration-300 translate-y-0 opacity-100 flex items-center space-x-3';
+                el.innerHTML = `
+                    <div class="flex-shrink-0 w-8 h-8 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <span>${message}</span>
+                `;
                 toastRoot.appendChild(el);
                 setTimeout(() => {
-                    el.remove();
+                    el.classList.add('translate-y-2', 'opacity-0');
+                    setTimeout(() => el.remove(), 300);
                 }, 4500);
             }
 

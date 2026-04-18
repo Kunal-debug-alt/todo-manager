@@ -1,51 +1,86 @@
 {% extends 'tasks/base.html' %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-    <h2 class="text-3xl font-bold">Projects</h2>
-    <div class="flex items-center gap-2">
-        <a href="{% url 'tasks:project_join' %}" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700">Join Project</a>
-        <a href="{% url 'tasks:project_create' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Add Project</a>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+    <div>
+        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Your Projects</h2>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Organize your tasks and collaborate with team members.</p>
+    </div>
+    <div class="flex items-center space-x-3">
+        <a href="{% url 'tasks:project_join' %}" class="flex items-center space-x-2 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 px-5 py-2.5 rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+            <span>Join</span>
+        </a>
+        <a href="{% url 'tasks:project_create' %}" class="flex items-center space-x-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary-500/25 hover:bg-primary-700 hover:-translate-y-0.5 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+            <span>New Project</span>
+        </a>
     </div>
 </div>
 
-<div class="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-md">
-    <ul class="space-y-2">
-        {% for project in projects %}
-            <li class="flex justify-between items-center">
-                <div class="flex-1">
-                    <a href="{% url 'tasks:tasks_in_project' project.id %}" class="text-lg hover:text-indigo-600">{{ project.name }}</a>
-                    <div class="mt-2">
-                        <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                            <span>{{ project.done_tasks|default:0 }}/{{ project.total_tasks|default:0 }} tasks done</span>
-                            {% if project.total_tasks %}
-                                <span>{% widthratio project.done_tasks project.total_tasks 100 %}%</span>
-                            {% else %}
-                                <span>0%</span>
-                            {% endif %}
-                        </div>
-                        <div class="mt-2 h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                            {% if project.total_tasks %}
-                                <div class="h-full bg-indigo-600" style="width: {% widthratio project.done_tasks project.total_tasks 100 %}%"></div>
-                            {% else %}
-                                <div class="h-full bg-indigo-600" style="width: 0%"></div>
-                            {% endif %}
-                        </div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+    {% for project in projects %}
+        <div class="group bg-white dark:bg-slate-900/50 glass border border-slate-200/50 dark:border-slate-800/50 p-6 rounded-3xl hover:shadow-2xl hover:shadow-primary-500/10 transition-all duration-300 flex flex-col relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-primary-500/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+            
+            <div class="relative z-10">
+                <div class="flex items-start justify-between mb-6">
+                    <div class="w-12 h-12 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center border border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:border-primary-500/30">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2z"></path></svg>
                     </div>
-                </div>
-
-                <div class="ml-4">
                     {% if project.user_id == user.id %}
-                        <a href="{% url 'tasks:project_invite' project.id %}" class="text-slate-400 hover:text-indigo-500 mr-2">Invite</a>
-                        <a href="{% url 'tasks:project_update' project.id %}" class="text-slate-400 hover:text-indigo-500 mr-2">Edit</a>
-                        <a href="{% url 'tasks:project_delete' project.id %}" class="text-slate-400 hover:text-red-500">Delete</a>
+                    <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <a href="{% url 'tasks:project_invite' project.id %}" class="p-2 text-slate-400 hover:text-primary-600 transition-colors" title="Invite">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                        </a>
+                        <a href="{% url 'tasks:project_update' project.id %}" class="p-2 text-slate-400 hover:text-primary-600 transition-colors" title="Edit">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        </a>
+                        <a href="{% url 'tasks:project_delete' project.id %}" class="p-2 text-slate-400 hover:text-red-500 transition-colors" title="Delete">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </a>
+                    </div>
                     {% endif %}
                 </div>
-            </li>
-        {% empty %}
-            <li>No projects yet.</li>
-        {% endfor %}
-    </ul>
+
+                <a href="{% url 'tasks:tasks_in_project' project.id %}" class="block group/link">
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover/link:text-primary-600 transition-colors">{{ project.name }}</h3>
+                    <p class="text-sm text-slate-500 mb-6 line-clamp-2">Manage all tasks related to {{ project.name }} here.</p>
+                </a>
+
+                <div class="mt-auto">
+                    <div class="flex items-center justify-between text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">
+                        <span>Progress</span>
+                        <span class="text-primary-600 dark:text-primary-400">
+                            {% if project.total_tasks %}
+                                {% widthratio project.done_tasks project.total_tasks 100 %}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
+                        {% if project.total_tasks %}
+                            <div class="h-full bg-gradient-to-r from-primary-500 to-accent-500 shadow-[0_0_10px_rgba(14,165,233,0.3)] transition-all duration-1000" style="width: {% widthratio project.done_tasks project.total_tasks 100 %}%"></div>
+                        {% else %}
+                            <div class="h-full bg-primary-600" style="width: 0%"></div>
+                        {% endif %}
+                    </div>
+                    <p class="mt-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        {{ project.done_tasks|default:0 }} of {{ project.total_tasks|default:0 }} tasks completed
+                    </p>
+                </div>
+            </div>
+            
+            <a href="{% url 'tasks:tasks_in_project' project.id %}" class="absolute inset-0 z-0"></a>
+        </div>
+    {% empty %}
+        <div class="col-span-full h-64 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl opacity-50">
+             <svg class="w-12 h-12 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2z"></path></svg>
+             <p class="text-lg text-slate-500 font-medium">No projects yet.</p>
+             <a href="{% url 'tasks:project_create' %}" class="mt-4 text-primary-600 font-bold hover:underline">Create your first project</a>
+        </div>
+    {% endfor %}
 </div>
 
 <script>

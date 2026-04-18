@@ -3,38 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Sign In | TaskFlow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
                     colors: {
-                        slate: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            200: '#e2e8f0',
-                            300: '#cbd5e1',
-                            400: '#94a3b8',
-                            500: '#64748b',
-                            600: '#475569',
-                            700: '#334155',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                            950: '#020617',
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
                         },
-                        indigo: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            200: '#c7d2fe',
-                            300: '#a5b4fc',
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81',
-                            950: '#1e1b4b',
+                        accent: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
                         }
                     }
                 }
@@ -42,44 +47,67 @@
         }
     </script>
     <style>
-        /* Force form inputs to have readable text and normal background */
-        input[type="text"], input[type="email"], input[type="password"] {
-            background-color: white !important;
-            color: black !important;
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.7);
         }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 flex items-center justify-center h-screen">
+<body class="bg-[#fbfcfd] dark:bg-[#020617] flex items-center justify-center min-h-screen p-6 font-sans">
     <div class="w-full max-w-md">
-        <div class="bg-white dark:bg-slate-800 shadow-md rounded-lg p-8">
-            <h2 class="text-2xl font-bold text-center text-slate-800 dark:text-slate-200 mb-6">Login</h2>
-            
+        <div class="flex items-center justify-center space-x-3 mb-10">
+            <div class="w-12 h-12 bg-gradient-to-tr from-accent-600 to-primary-500 rounded-2xl flex items-center justify-center shadow-xl shadow-primary-500/20">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">TaskFlow</h1>
+        </div>
+
+        <div class="bg-white/80 dark:bg-slate-900/50 glass shadow-2xl rounded-[2.5rem] border border-slate-200/50 dark:border-slate-800/50 p-10">
+            <div class="text-center mb-10">
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Welcome Back</h2>
+                <p class="text-slate-500">Sign in to continue to your dashboard</p>
+            </div>
+
             {% if form.errors %}
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <span class="block sm:inline">Incorrect username or password. Please try again.</span>
+            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 px-4 py-3 rounded-2xl mb-6 text-sm flex items-center space-x-2">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <span>Incorrect username or password.</span>
             </div>
             {% endif %}
 
-            <form method="post">
+            <form method="post" class="space-y-6">
                 {% csrf_token %}
-                <div class="mb-4">
-                    <label for="id_username" class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2">Username</label>
-                    <input type="text" name="username" id="id_username" class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 dark:text-slate-300 leading-tight focus:outline-none focus:shadow-outline bg-slate-200 dark:bg-slate-700">
+                <div>
+                    <label for="id_username" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Username</label>
+                    <input type="text" name="username" id="id_username" class="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all outline-none" placeholder="Enter your username" required>
                 </div>
-                <div class="mb-6">
-                    <label for="id_password" class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2">Password</label>
-                    <input type="password" name="password" id="id_password" class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 dark:text-slate-300 mb-3 leading-tight focus:outline-none focus:shadow-outline bg-slate-200 dark:bg-slate-700">
+                <div>
+                    <div class="flex items-center justify-between mb-2 px-1">
+                        <label for="id_password" class="block text-xs font-bold uppercase tracking-wider text-slate-400">Password</label>
+                    </div>
+                    <input type="password" name="password" id="id_password" class="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all outline-none" placeholder="••••••••" required>
                 </div>
-                <div class="flex items-center justify-between">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                        Sign In
-                    </button>
-                    <a href="{% url 'tasks:register' %}" class="inline-block align-baseline font-bold text-sm text-indigo-600 hover:text-indigo-800">
-                        Don't have an account?
-                    </a>
-                </div>
+
+                <button type="submit" class="w-full bg-primary-600 text-white py-4 rounded-2xl font-bold shadow-xl shadow-primary-500/25 hover:bg-primary-700 hover:-translate-y-0.5 transition-all">
+                    Sign In
+                </button>
             </form>
+
+            <div class="mt-10 text-center">
+                <p class="text-sm text-slate-500">
+                    New to TaskFlow? 
+                    <a href="{% url 'tasks:register' %}" class="font-bold text-primary-600 dark:text-primary-400 hover:underline">Create an Account</a>
+                </p>
+            </div>
         </div>
+        
+        <p class="mt-8 text-center text-xs text-slate-400">
+            &copy; 2026 TaskFlow Inc. All rights reserved.
+        </p>
     </div>
 </body>
 </html>
