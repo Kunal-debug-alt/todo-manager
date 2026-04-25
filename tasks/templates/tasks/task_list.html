@@ -470,8 +470,8 @@
             const wrapper = document.createElement('div');
             wrapper.className = `flex items-end gap-2 msg-enter ${isSelf ? 'justify-end' : ''}`;
 
-            const avatarColor = userColorMap[author] || avatarColor(author) || AVATAR_COLORS[0];
-            const avatarBg = isSelf ? 'linear-gradient(135deg,#6366f1,#0ea5e9)' : avatarColor;
+            const avatarBgColor = userColorMap[author] || avatarColor(author) || AVATAR_COLORS[0];
+            const avatarBg = isSelf ? 'linear-gradient(135deg,#6366f1,#0ea5e9)' : avatarBgColor;
             const avatarLetter = (author || '?')[0].toUpperCase();
 
             if (isSelf) {
