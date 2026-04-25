@@ -332,12 +332,13 @@
             } catch (e) { /* silently ignore */ }
         }
 
-        {% if user.is_authenticated %}
-        // Load notifications on page load
-        fetchNotifications();
-        // Poll every 30s as fallback (WS is primary)
-        setInterval(fetchNotifications, 30000);
-        {% endif %}
+        const _isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+        if (_isAuthenticated) {
+            // Load notifications on page load
+            fetchNotifications();
+            // Poll every 30s as fallback (WS is primary)
+            setInterval(fetchNotifications, 30000);
+        }
 
         (function () {
             const toastRoot = document.getElementById('toast-root');

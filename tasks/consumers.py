@@ -50,30 +50,48 @@ class RealtimeConsumer(AsyncJsonWebsocketConsumer):
             text = content.get('text', '').strip()
             if text:
                 # Save to DB
-                await sync_to_async(ChatMessage.objects.create)(
+                msg_obj = await sync_to_async(ChatMessage.objects.create)(
                     project_id=self.project_id,
                     author=user,
                     text=text
                 )
-                
-                # Broadcast back to the group
+                # Broadcast back to the group with timestamp
                 await self.channel_layer.group_send(
                     self.project_group,
                     {
                         'type': 'chat_broadcast',
                         'author': user.username,
                         'text': text,
+                        'ts': msg_obj.created_at.isoformat(),
                     }
                 )
         elif msg_type == 'clear_chat' and self.project_id:
             # Delete all chat messages for this project
             await sync_to_async(lambda: ChatMessage.objects.filter(project_id=self.project_id).delete())()
-            
             # Broadcast the clear action to the group
             await self.channel_layer.group_send(
                 self.project_group,
                 {
                     'type': 'chat_clear_broadcast',
+                }
+            )
+        elif msg_type == 'typing_start' and self.project_id:
+            # Broadcast typing indicator to group (excluding self via JS)
+            await self.channel_layer.group_send(
+                self.project_group,
+                {
+                    'type': 'typing_broadcast',
+                    'author': user.username,
+                    'action': 'start',
+                }
+            )
+        elif msg_type == 'typing_stop' and self.project_id:
+            await self.channel_layer.group_send(
+                self.project_group,
+                {
+                    'type': 'typing_broadcast',
+                    'author': user.username,
+                    'action': 'stop',
                 }
             )
 
@@ -87,6 +105,14 @@ class RealtimeConsumer(AsyncJsonWebsocketConsumer):
             'type': 'chat_message',
             'author': event.get('author'),
             'text': event.get('text'),
+            'ts': event.get('ts'),
+        })
+
+    async def typing_broadcast(self, event):
+        action = event.get('action', 'stop')
+        await self.send_json({
+            'type': 'typing_start' if action == 'start' else 'typing_stop',
+            'author': event.get('author'),
         })
 
     async def notify(self, event):

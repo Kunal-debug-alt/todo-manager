@@ -74,51 +74,136 @@
             </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-900/50 glass p-6 rounded-3xl border border-slate-200/50 dark:border-slate-800/50 flex flex-col" style="height: 420px;">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-2">
-                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                    <p class="text-sm font-bold text-slate-900 dark:text-white">Live Chat</p>
+        <!-- Live Chat Panel - Premium Redesign -->
+        <div id="live-chat-panel" class="relative flex flex-col rounded-3xl overflow-hidden border border-slate-200/60 dark:border-slate-700/60 shadow-2xl" style="height:480px; background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%);">
+
+            <!-- Chat CSS -->
+            <style>
+                .dark #live-chat-panel { background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%) !important; }
+                .chat-header-gradient { background: linear-gradient(135deg, #6366f1 0%, #0ea5e9 100%); }
+                .chat-bubble-self { background: linear-gradient(135deg, #6366f1 0%, #0ea5e9 100%); }
+                .chat-bubble-other { background: rgba(241,245,249,1); }
+                .dark .chat-bubble-other { background: rgba(30,41,59,1); }
+                .msg-enter { animation: msgSlideIn 0.35s cubic-bezier(.21,1.02,.73,1) forwards; }
+                @keyframes msgSlideIn { from { opacity:0; transform: translateY(18px) scale(0.97); } to { opacity:1; transform: translateY(0) scale(1); } }
+                .typing-dot { width:7px; height:7px; border-radius:50%; background: #6366f1; display:inline-block; animation: typingBounce 1.3s infinite; }
+                .typing-dot:nth-child(2) { animation-delay:.2s; }
+                .typing-dot:nth-child(3) { animation-delay:.4s; }
+                @keyframes typingBounce { 0%,80%,100%{transform:translateY(0);opacity:.5;} 40%{transform:translateY(-8px);opacity:1;} }
+                #chat-messages::-webkit-scrollbar { width: 4px; }
+                #chat-messages::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.25); border-radius: 4px; }
+                .emoji-picker-grid button:hover { transform: scale(1.3); }
+                .emoji-btn { transition: transform 0.15s; font-size: 1.35rem; line-height:1; cursor:pointer; background:none; border:none; padding:4px; border-radius:8px; }
+                .emoji-btn:hover { background: rgba(99,102,241,0.12); }
+                #scroll-to-bottom { transition: opacity .3s, transform .3s; }
+                .online-avatar { border: 2px solid #22c55e; }
+                .chat-ts { font-size:9px; opacity:.55; margin-top:3px; }
+                .char-counter { font-size:10px; color:#94a3b8; transition: color .2s; }
+                .char-counter.warn { color: #f59e0b; }
+                .char-counter.danger { color: #ef4444; }
+            </style>
+
+            <!-- Header -->
+            <div class="chat-header-gradient flex items-center justify-between px-5 py-3.5 flex-shrink-0">
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                        </div>
+                        <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 border-2 border-white rounded-full animate-pulse"></span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-white leading-none">Live Chat</p>
+                        <p class="text-[10px] text-white/70 mt-0.5">Team • Real-time</p>
+                    </div>
                 </div>
-                {% if project_can_edit %}
-                    <button type="button" id="clear-chat-btn" class="text-xs text-slate-400 hover:text-red-500 transition-colors flex items-center space-x-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        <span>Clear</span>
+                <div class="flex items-center space-x-2">
+                    {% if project_can_edit %}
+                    <button type="button" id="clear-chat-btn" title="Clear chat" class="p-1.5 text-white/60 hover:text-red-300 hover:bg-white/10 rounded-xl transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     </button>
-                {% endif %}
+                    {% endif %}
+                </div>
             </div>
-            
-            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 pr-2 mb-4 custom-scrollbar">
+
+            <!-- Messages Area -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-4 space-y-3 relative">
                 {% for msg in chat_messages %}
-                    <div class="flex flex-col {% if msg.author == user %}items-end{% endif %}">
-                        <div class="max-w-[85%] px-4 py-2.5 rounded-2xl text-sm shadow-sm
-                             {% if msg.author == user %}
-                                bg-primary-600 text-white rounded-tr-none
-                             {% else %}
-                                bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none border border-slate-200 dark:border-slate-700/50
-                             {% endif %}">
-                            {% if msg.author != user %}
-                                <span class="block text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70">{{ msg.author.username }}</span>
-                            {% endif %}
-                            {{ msg.text }}
+                    {% if msg.author == user %}
+                    <!-- Self message -->
+                    <div class="flex justify-end items-end gap-2 group">
+                        <div class="flex flex-col items-end">
+                            <div class="chat-bubble-self text-white px-4 py-2.5 rounded-2xl rounded-br-md max-w-[88%] text-sm shadow-md shadow-indigo-200 dark:shadow-indigo-900/30 break-words">{{ msg.text }}</div>
+                            <span class="chat-ts text-slate-400">{{ msg.created_at|date:"H:i" }}</span>
+                        </div>
+                        <div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-white shadow-md" style="background: linear-gradient(135deg,#6366f1,#0ea5e9);">{{ user.username|slice:":1"|upper }}</div>
+                    </div>
+                    {% else %}
+                    <!-- Other user message -->
+                    <div class="flex items-end gap-2 group">
+                        <div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-white shadow-md chat-avatar" data-name="{{ msg.author.username }}">{{ msg.author.username|slice:":1"|upper }}</div>
+                        <div class="flex flex-col items-start">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1 pl-1">{{ msg.author.username }}</span>
+                            <div class="chat-bubble-other dark:text-slate-200 text-slate-800 px-4 py-2.5 rounded-2xl rounded-bl-md max-w-[88%] text-sm shadow-sm border border-slate-200/60 dark:border-slate-700/50 break-words">{{ msg.text }}</div>
+                            <span class="chat-ts text-slate-400">{{ msg.created_at|date:"H:i" }}</span>
                         </div>
                     </div>
+                    {% endif %}
                 {% empty %}
-                    <div id="no-chat-msg" class="h-full flex flex-col items-center justify-center text-center p-4">
-                        <div class="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
-                            <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    <div id="no-chat-msg" class="h-full flex flex-col items-center justify-center text-center py-8">
+                        <div class="w-16 h-16 mb-4 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(14,165,233,.12));">
+                            <svg class="w-8 h-8" style="color:#6366f1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                         </div>
-                        <p class="text-xs text-slate-500 italic">No messages yet. Send a greeting!</p>
+                        <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">No messages yet</p>
+                        <p class="text-xs text-slate-400 mt-1">Be the first to say hello! 👋</p>
                     </div>
                 {% endfor %}
             </div>
-            
-            <form id="chat-form" class="relative">
-                <input type="text" id="chat-input" class="w-full pl-4 pr-12 py-3 bg-slate-100 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary-500 transition-all dark:text-white" placeholder="Message team..." required>
-                <button type="submit" class="absolute right-2 top-2 p-1.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all shadow-md">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                </button>
-            </form>
+
+            <!-- Typing Indicator -->
+            <div id="typing-indicator" class="hidden px-5 pb-1 flex-shrink-0">
+                <div class="inline-flex items-center space-x-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span id="typing-user-name" class="text-xs text-slate-400 ml-2">typing...</span>
+                </div>
+            </div>
+
+            <!-- Scroll to bottom button -->
+            <button id="scroll-to-bottom" class="hidden absolute bottom-20 right-6 w-8 h-8 rounded-full shadow-lg flex items-center justify-center opacity-0" style="background:linear-gradient(135deg,#6366f1,#0ea5e9);">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+
+            <!-- Emoji Picker -->
+            <div id="emoji-picker" class="hidden absolute bottom-16 left-3 right-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl z-20 p-3">
+                <div class="grid grid-cols-8 gap-1">
+                    {% for e in "😀😂🥰😎🤔😅🙌👏🔥💯✅❤️🎉🚀⚡🌟💡🙏👍👎😮🤣😤😭😍🤩🥳👀💪🤝" %}
+                    <button type="button" class="emoji-btn" data-emoji="{{ e }}">{{ e }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="flex-shrink-0 px-3 pb-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <form id="chat-form" class="flex items-center gap-2">
+                    <button type="button" id="emoji-toggle-btn" class="flex-shrink-0 w-9 h-9 flex items-center justify-center text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all text-lg" title="Emoji">
+                        😊
+                    </button>
+                    <div class="relative flex-1">
+                        <input type="text" id="chat-input" autocomplete="off" maxlength="500"
+                               class="w-full pl-4 pr-16 py-2.5 rounded-2xl text-sm transition-all outline-none"
+                               style="background:rgba(241,245,249,1); color:#1e293b; border: 1.5px solid transparent;"
+                               placeholder="Message team… (Enter to send)">
+                        <div id="char-count" class="char-counter absolute right-3 bottom-2.5 hidden">0/500</div>
+                    </div>
+                    <button type="submit" id="chat-send-btn"
+                            class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-2xl transition-all shadow-md"
+                            style="background:linear-gradient(135deg,#6366f1,#0ea5e9);">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 {% endif %}
@@ -268,103 +353,254 @@
     (function () {
         const meta = document.getElementById('realtime-meta');
         const currentProjectId = meta && meta.dataset.projectId ? Number(meta.dataset.projectId) : null;
+        const currentUser = "{{ user.username }}";
 
+        // ── Progress bar ──────────────────────────────────────────────
         const bar = document.getElementById('project-progress-bar');
         if (bar && bar.dataset.percent) {
             const pct = Math.max(0, Math.min(100, Number(bar.dataset.percent)));
-            bar.style.width = pct + '%';
+            setTimeout(() => { bar.style.width = pct + '%'; }, 200);
         }
 
-        // Chat Form Submission
-        const chatForm = document.getElementById('chat-form');
-        const chatInput = document.getElementById('chat-input');
-        
-        if (chatForm) {
-            chatForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const text = chatInput.value.trim();
-                
-                if (text && currentProjectId && window.socket) {
-                    window.socket.send(JSON.stringify({
-                        'type': 'chat_message',
-                        'text': text
-                    }));
-                    chatInput.value = '';
+        // ── Avatar color palette ──────────────────────────────────────
+        const AVATAR_COLORS = [
+            'linear-gradient(135deg,#f59e0b,#ef4444)',
+            'linear-gradient(135deg,#10b981,#0ea5e9)',
+            'linear-gradient(135deg,#8b5cf6,#ec4899)',
+            'linear-gradient(135deg,#f97316,#eab308)',
+            'linear-gradient(135deg,#06b6d4,#3b82f6)',
+        ];
+        const userColorMap = {};
+        function avatarColor(name) {
+            if (!userColorMap[name]) {
+                let h = 0;
+                for (let c of name) h = (h * 31 + c.charCodeAt(0)) % AVATAR_COLORS.length;
+                userColorMap[name] = AVATAR_COLORS[h];
+            }
+            return userColorMap[name];
+        }
+
+        // Apply colors to existing server-rendered avatars
+        document.querySelectorAll('.chat-avatar[data-name]').forEach(el => {
+            el.style.background = avatarColor(el.dataset.name);
+        });
+
+        // ── Emoji Picker ──────────────────────────────────────────────
+        const emojis = ['😀','😂','🥰','😎','🤔','😅','🙌','👏','🔥','💯','✅','❤️','🎉','🚀','⚡','🌟','💡','🙏','👍','👎','😮','🤣','😤','😭','😍','🤩','🥳','👀','💪','🤝'];
+        const emojiPicker = document.getElementById('emoji-picker');
+        if (emojiPicker) {
+            emojiPicker.innerHTML = '<div class="grid gap-1" style="grid-template-columns:repeat(8,1fr)">' +
+                emojis.map(e => `<button type="button" class="emoji-btn" data-emoji="${e}">${e}</button>`).join('') + '</div>';
+        }
+        const emojiToggle = document.getElementById('emoji-toggle-btn');
+        if (emojiToggle && emojiPicker) {
+            emojiToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                emojiPicker.classList.toggle('hidden');
+            });
+            document.addEventListener('click', (e) => {
+                if (!emojiPicker.contains(e.target) && e.target !== emojiToggle)
+                    emojiPicker.classList.add('hidden');
+            });
+            emojiPicker.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-emoji]');
+                if (btn) {
+                    const inp = document.getElementById('chat-input');
+                    if (inp) {
+                        inp.value += btn.dataset.emoji;
+                        inp.focus();
+                        updateCharCount();
+                    }
+                    emojiPicker.classList.add('hidden');
                 }
             });
         }
-        
-        // Clear Chat Action
+
+        // ── Character counter ─────────────────────────────────────────
+        const chatInput = document.getElementById('chat-input');
+        const charCount = document.getElementById('char-count');
+        function updateCharCount() {
+            if (!chatInput || !charCount) return;
+            const len = chatInput.value.length;
+            charCount.textContent = `${len}/500`;
+            charCount.classList.toggle('hidden', len === 0);
+            charCount.className = charCount.className.replace(/\s*(warn|danger)/g,'');
+            if (len > 450) charCount.classList.add(len > 480 ? 'danger' : 'warn');
+        }
+        if (chatInput) {
+            chatInput.addEventListener('input', updateCharCount);
+            // Highlight border on focus
+            chatInput.addEventListener('focus', () => chatInput.style.borderColor = '#6366f1');
+            chatInput.addEventListener('blur', () => chatInput.style.borderColor = 'transparent');
+        }
+
+        // ── Scroll-to-bottom button ───────────────────────────────────
+        const messagesDiv = document.getElementById('chat-messages');
+        const scrollBtn = document.getElementById('scroll-to-bottom');
+        if (messagesDiv && scrollBtn) {
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            messagesDiv.addEventListener('scroll', () => {
+                const isNearBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 80;
+                if (isNearBottom) {
+                    scrollBtn.classList.add('hidden'); scrollBtn.style.opacity = '0';
+                } else {
+                    scrollBtn.classList.remove('hidden'); scrollBtn.style.opacity = '1';
+                }
+            });
+            scrollBtn.addEventListener('click', () => {
+                messagesDiv.scrollTo({ top: messagesDiv.scrollHeight, behavior: 'smooth' });
+            });
+        }
+
+        // ── Chat message renderer ─────────────────────────────────────
+        function formatTime(ts) {
+            try {
+                const d = ts ? new Date(ts) : new Date();
+                return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } catch(e) { return ''; }
+        }
+
+        function appendMessage(author, text, ts) {
+            if (!messagesDiv) return;
+            const noMsg = document.getElementById('no-chat-msg');
+            if (noMsg) noMsg.remove();
+
+            const isSelf = author === currentUser;
+            const time = formatTime(ts);
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex items-end gap-2 msg-enter ${isSelf ? 'justify-end' : ''}`;
+
+            const avatarColor = userColorMap[author] || avatarColor(author) || AVATAR_COLORS[0];
+            const avatarBg = isSelf ? 'linear-gradient(135deg,#6366f1,#0ea5e9)' : avatarColor;
+            const avatarLetter = (author || '?')[0].toUpperCase();
+
+            if (isSelf) {
+                wrapper.innerHTML = `
+                    <div class="flex flex-col items-end">
+                        <div class="chat-bubble-self text-white px-4 py-2.5 rounded-2xl rounded-br-md max-w-xs text-sm shadow-md break-words">${escHtml(text)}</div>
+                        <span class="chat-ts text-slate-400">${time}</span>
+                    </div>
+                    <div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-white shadow-md" style="background:${avatarBg}">${avatarLetter}</div>
+                `;
+            } else {
+                const bg = avatarColor(author);
+                wrapper.innerHTML = `
+                    <div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-white shadow-md" style="background:${bg}">${avatarLetter}</div>
+                    <div class="flex flex-col items-start">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 pl-1">${escHtml(author)}</span>
+                        <div class="chat-bubble-other dark:text-slate-200 text-slate-800 px-4 py-2.5 rounded-2xl rounded-bl-md max-w-xs text-sm shadow-sm border border-slate-200/60 dark:border-slate-700/50 break-words">${escHtml(text)}</div>
+                        <span class="chat-ts text-slate-400">${time}</span>
+                    </div>
+                `;
+            }
+
+            messagesDiv.appendChild(wrapper);
+            const isNearBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 120;
+            if (isNearBottom) messagesDiv.scrollTo({ top: messagesDiv.scrollHeight, behavior: 'smooth' });
+        }
+
+        function escHtml(s) {
+            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        // ── Typing indicator ──────────────────────────────────────────
+        const typingIndicator = document.getElementById('typing-indicator');
+        const typingName = document.getElementById('typing-user-name');
+        let typingTimeout;
+        let isTyping = false;
+
+        if (chatInput) {
+            chatInput.addEventListener('input', () => {
+                if (currentProjectId && window.socket && window.socket.readyState === 1) {
+                    if (!isTyping) {
+                        isTyping = true;
+                        window.socket.send(JSON.stringify({ type: 'typing_start' }));
+                    }
+                    clearTimeout(typingTimeout);
+                    typingTimeout = setTimeout(() => {
+                        isTyping = false;
+                        if (window.socket && window.socket.readyState === 1)
+                            window.socket.send(JSON.stringify({ type: 'typing_stop' }));
+                    }, 1500);
+                }
+            });
+        }
+
+        // ── Chat Form Submission ──────────────────────────────────────
+        const chatForm = document.getElementById('chat-form');
+        if (chatForm) {
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const text = chatInput ? chatInput.value.trim() : '';
+                if (text && currentProjectId && window.socket && window.socket.readyState === 1) {
+                    window.socket.send(JSON.stringify({ type: 'chat_message', text }));
+                    chatInput.value = '';
+                    updateCharCount();
+                    isTyping = false;
+                    clearTimeout(typingTimeout);
+                } else if (!window.socket || window.socket.readyState !== 1) {
+                    // Offline fallback: show toast
+                    if (typeof showToast === 'function') showToast('Not connected to chat. Please refresh.');
+                }
+            });
+        }
+
+        // ── Clear Chat ────────────────────────────────────────────────
         const clearBtn = document.getElementById('clear-chat-btn');
         if (clearBtn) {
             clearBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                if (currentProjectId && window.socket) {
-                    if (confirm('Are you sure you want to clear the entire project chat? This cannot be undone.')) {
-                        window.socket.send(JSON.stringify({
-                            'type': 'clear_chat'
-                        }));
+                if (currentProjectId && window.socket && window.socket.readyState === 1) {
+                    if (confirm('Clear the entire project chat? This cannot be undone.')) {
+                        window.socket.send(JSON.stringify({ type: 'clear_chat' }));
                     }
                 }
             });
         }
 
+        // ── Realtime Events ───────────────────────────────────────────
         window.addEventListener('realtime', (e) => {
             const data = e.detail || {};
-            
-            // Handle chat and clear broadcasts
+
             if (data.type === 'clear_chat') {
-                const messagesDiv = document.getElementById('chat-messages');
                 if (messagesDiv) {
-                    messagesDiv.innerHTML = '<p id="no-chat-msg" class="text-slate-500 dark:text-slate-400 text-xs italic">Say hi to your team!</p>';
+                    messagesDiv.innerHTML = `
+                        <div id="no-chat-msg" class="h-full flex flex-col items-center justify-center text-center py-8">
+                            <div class="w-16 h-16 mb-4 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(14,165,233,.12));">
+                                <svg class="w-8 h-8" style="color:#6366f1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            </div>
+                            <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Chat was cleared</p>
+                            <p class="text-xs text-slate-400 mt-1">Start a fresh conversation! 🚀</p>
+                        </div>`;
                 }
                 return;
             }
-            
+
             if (data.type === 'chat_message') {
-                const messagesDiv = document.getElementById('chat-messages');
-                const noMsg = document.getElementById('no-chat-msg');
-                const currentUser = "{{ user.username }}";
-                
-                if (messagesDiv) {
-                    if (noMsg) noMsg.remove();
-                    
-                    const isSelf = data.author === currentUser;
-                    const newMsg = document.createElement('div');
-                    newMsg.className = `flex flex-col ${isSelf ? 'items-end' : ''}`;
-                    
-                    newMsg.innerHTML = `
-                        <div class="max-w-[85%] px-4 py-2.5 rounded-2xl text-sm shadow-sm transition-all duration-300 translate-y-2 opacity-0 animate-in fade-in fill-mode-forwards
-                             ${isSelf ? 'bg-primary-600 text-white rounded-tr-none' : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none border border-slate-200 dark:border-slate-700/50'}">
-                            ${!isSelf ? `<span class="block text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70">${data.author}</span>` : ''}
-                            ${data.text}
-                        </div>
-                    `;
-                    
-                    messagesDiv.appendChild(newMsg);
-                    // Trigger reflow for animation
-                    setTimeout(() => {
-                        const inner = newMsg.querySelector('div');
-                        inner.classList.remove('translate-y-2', 'opacity-0');
-                    }, 50);
-                    
-                    // Scroll to bottom
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                }
-                return; // exit early for chat broadcasts
+                appendMessage(data.author, data.text, data.ts || null);
+                return;
             }
+
+            if (data.type === 'typing_start' && data.author && data.author !== currentUser) {
+                if (typingIndicator && typingName) {
+                    typingName.textContent = data.author + ' is typing...';
+                    typingIndicator.classList.remove('hidden');
+                }
+                return;
+            }
+            if (data.type === 'typing_stop') {
+                if (typingIndicator) typingIndicator.classList.add('hidden');
+                return;
+            }
+
             if (data.type !== 'refresh') return;
 
-            // Reload task lists when the current project (or personal list) changes.
-            if (currentProjectId === null) {
-                window.location.reload();
-                return;
-            }
-
-            if (data.project_id === currentProjectId) {
-                window.location.reload();
-            }
+            if (currentProjectId === null) { window.location.reload(); return; }
+            if (data.project_id === currentProjectId) window.location.reload();
         });
+
+        // Scroll to bottom on load
+        if (messagesDiv) messagesDiv.scrollTop = messagesDiv.scrollHeight;
     })();
 </script>
 {% endblock content %}
